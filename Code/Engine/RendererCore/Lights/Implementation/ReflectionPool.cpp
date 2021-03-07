@@ -98,6 +98,8 @@ struct ProbeUpdateInfo
       desc.m_Type = ezGALTextureType::TextureCube;
       desc.m_bCreateRenderTarget = true;
       desc.m_bAllowDynamicMipGeneration = true;
+      desc.m_ResourceAccess.m_bReadBack = true;
+      desc.m_ResourceAccess.m_bImmutable = false;
 
       m_hCubemap = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(desc);
       pDevice->GetTexture(m_hCubemap)->SetDebugName("Reflection Cubemap");
@@ -370,6 +372,8 @@ struct ezReflectionPool::Data
       desc.m_Format = ezGALResourceFormat::RGBAHalf;
       desc.m_Type = ezGALTextureType::TextureCube;
       desc.m_bCreateRenderTarget = true;
+      desc.m_ResourceAccess.m_bReadBack = true;
+      desc.m_ResourceAccess.m_bImmutable = false;
 
       m_hReflectionSpecularTexture = pDevice->CreateTexture(desc);
       pDevice->GetTexture(m_hReflectionSpecularTexture)->SetDebugName("Reflection Specular Texture");
@@ -485,7 +489,8 @@ struct ezReflectionPool::Data
 
         pView->SetRenderPassProperty("ReflectionFilterPass", "Intensity", data.m_fIntensity);
         pView->SetRenderPassProperty("ReflectionFilterPass", "Saturation", data.m_fSaturation);
-        pView->SetRenderPassProperty("ReflectionFilterPass", "OutputIndex", updateInfo.m_pWorld->GetIndex());
+        pView->SetRenderPassProperty("ReflectionFilterPass", "SpecularOutputIndex", 0);
+        pView->SetRenderPassProperty("ReflectionFilterPass", "IrradianceOutputIndex", updateInfo.m_pWorld->GetIndex());
         pView->SetRenderPassProperty("ReflectionFilterPass", "InputCubemap", updateInfo.m_hCubemap.GetInternalID().m_Data);
       }
       else

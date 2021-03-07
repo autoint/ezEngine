@@ -464,7 +464,11 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
 
         MemDesc.m_pData = image.GetPixelPointer<ezUInt8>();
         ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
-        pGALCommandEncoder->CopyTextureReadbackResult(m_hThumbnailColorRT, &SysMemDescs);
+
+        ezGALTextureSubresource sourceSubResource;
+        ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
+
+        pGALCommandEncoder->CopyTextureReadbackResult(m_hThumbnailColorRT, sourceSubResources, SysMemDescs);
 
         ezImage imageSwap;
         ezImage* pImage = &image;

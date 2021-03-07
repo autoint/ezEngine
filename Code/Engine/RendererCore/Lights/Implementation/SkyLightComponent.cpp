@@ -16,6 +16,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkyLightComponent, 1, ezComponentMode::Dynamic)
   {
     EZ_ACCESSOR_PROPERTY("Intensity", GetIntensity, SetIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
     EZ_ACCESSOR_PROPERTY("Saturation", GetSaturation, SetSaturation)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("AutoUpdate", m_bAutoUpdate)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("ReflectionData", m_ReflectionProbeData)
   }
   EZ_END_PROPERTIES;
@@ -84,9 +85,11 @@ void ezSkyLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) co
   if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Reflection)
     return;
 
-  if (m_ReflectionProbeData.m_fIntensity <= 0.0f)
+  if (m_ReflectionProbeData.m_fIntensity <= 0.0f || (!m_bAutoUpdate && m_Updates == 0))
     return;
 
+  if (!m_bAutoUpdate && m_Updates > 0)
+      --m_Updates;
   ezReflectionPool::ExtractReflectionProbe(msg, m_ReflectionProbeData, this, s_fSkyLightPriority);
 }
 

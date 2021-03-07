@@ -42,5 +42,7 @@ protected:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
+  bool m_bAutoUpdate = true;
+  mutable int m_Updates = 20;
   ezReflectionProbeData m_ReflectionProbeData;
 };
