@@ -82,6 +82,30 @@ void ezAnimationControllerNodeManager::InternalCreatePins(const ezDocumentObject
       pPin->m_DataType = ezAnimGraphPin::SkeletonWeights;
       node.m_Outputs.PushBack(pPin);
     }
+    else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphLocalPoseInputPin>())
+    {
+      ezAnimationControllerNodePin* pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Input, pProp->GetPropertyName(), weightPinColor, pObject);
+      pPin->m_DataType = ezAnimGraphPin::LocalPose;
+      node.m_Inputs.PushBack(pPin);
+    }
+    else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphLocalPoseOutputPin>())
+    {
+      ezAnimationControllerNodePin* pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Output, pProp->GetPropertyName(), weightPinColor, pObject);
+      pPin->m_DataType = ezAnimGraphPin::LocalPose;
+      node.m_Outputs.PushBack(pPin);
+    }
+    else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphFinalPoseInputPin>())
+    {
+      ezAnimationControllerNodePin* pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Input, pProp->GetPropertyName(), weightPinColor, pObject);
+      pPin->m_DataType = ezAnimGraphPin::FinalPose;
+      node.m_Inputs.PushBack(pPin);
+    }
+    else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphLocalPoseOutputPin>())
+    {
+      ezAnimationControllerNodePin* pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Output, pProp->GetPropertyName(), weightPinColor, pObject);
+      pPin->m_DataType = ezAnimGraphPin::FinalPose;
+      node.m_Outputs.PushBack(pPin);
+    }
     else
     {
       // EXTEND THIS if a new type is introduced
@@ -147,6 +171,14 @@ ezStatus ezAnimationControllerNodeManager::InternalCanConnect(const ezPin* pSour
       out_Result = CanConnectResult::Connect1toN;
       break;
 
+    case ezAnimGraphPin::LocalPose:
+      out_Result = CanConnectResult::Connect1toN;
+      break;
+
+    case ezAnimGraphPin::FinalPose:
+      out_Result = CanConnectResult::Connect1toN;
+      break;
+
       // EXTEND THIS if a new type is introduced
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
@@ -173,6 +205,8 @@ ezStatus ezAnimationControllerAssetDocument::InternalTransformAsset(ezStreamWrit
   animController.m_TriggerInputPinStates.SetCount(pinCounts[ezAnimGraphPin::Trigger].m_uiInputCount);
   animController.m_NumberInputPinStates.SetCount(pinCounts[ezAnimGraphPin::Number].m_uiInputCount);
   animController.m_SkeletonWeightInputPinStates.SetCount(pinCounts[ezAnimGraphPin::SkeletonWeights].m_uiInputCount);
+  animController.m_LocalPoseInputPinStates.SetCount(pinCounts[ezAnimGraphPin::LocalPose].m_uiInputCount);
+  animController.m_FinalPoseInputPinStates.SetCount(pinCounts[ezAnimGraphPin::FinalPose].m_uiInputCount);
   // EXTEND THIS if a new type is introduced
 
   for (ezUInt32 i = 0; i < ezAnimGraphPin::ENUM_COUNT; ++i)

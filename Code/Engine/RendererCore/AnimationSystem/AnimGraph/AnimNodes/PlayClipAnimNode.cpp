@@ -23,6 +23,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPlayClipAnimNode, 1, ezRTTIDefaultAllocator<ez
       EZ_MEMBER_PROPERTY("Active", m_Active)->AddAttributes(new ezHiddenAttribute()),
       EZ_MEMBER_PROPERTY("SpeedPin", m_SpeedPin)->AddAttributes(new ezHiddenAttribute()),
       EZ_MEMBER_PROPERTY("Weights", m_Weights)->AddAttributes(new ezHiddenAttribute()),
+
+      EZ_MEMBER_PROPERTY("LocalPose", m_LocalPose)->AddAttributes(new ezHiddenAttribute()),
     }
     EZ_END_PROPERTIES;
   }
@@ -31,7 +33,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezResult ezPlayClipAnimNode::SerializeNode(ezStreamWriter& stream) const
 {
-  stream.WriteVersion(2);
+  stream.WriteVersion(3);
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
@@ -44,13 +46,14 @@ ezResult ezPlayClipAnimNode::SerializeNode(ezStreamWriter& stream) const
   EZ_SUCCEED_OR_RETURN(m_Active.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_SpeedPin.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_Weights.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_LocalPose.Serialize(stream));
 
   return EZ_SUCCESS;
 }
 
 ezResult ezPlayClipAnimNode::DeserializeNode(ezStreamReader& stream)
 {
-  stream.ReadVersion(2);
+  const auto version = stream.ReadVersion(3);
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
@@ -64,6 +67,11 @@ ezResult ezPlayClipAnimNode::DeserializeNode(ezStreamReader& stream)
   EZ_SUCCEED_OR_RETURN(m_SpeedPin.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_Weights.Deserialize(stream));
 
+  if (version >= 3)
+  {
+    EZ_SUCCEED_OR_RETURN(m_LocalPose.Deserialize(stream));
+  }
+
   return EZ_SUCCESS;
 }
 
@@ -71,6 +79,9 @@ void ezPlayClipAnimNode::Step(ezAnimGraph* pOwner, ezTime tDiff, const ezSkeleto
 {
   if (!m_hAnimationClip.IsValid())
     return;
+
+  //if (!m_LocalPose.IsConnected())
+  //  return;
 
   ezResourceLock<ezAnimationClipResource> pAnimClip(m_hAnimationClip, ezResourceAcquireMode::BlockTillLoaded);
   if (pAnimClip.GetAcquireResult() != ezResourceAcquireResult::Final)
@@ -155,17 +166,25 @@ void ezPlayClipAnimNode::Step(ezAnimGraph* pOwner, ezTime tDiff, const ezSkeleto
 
   pOwner->AddFrameRootMotion(pAnimClip->GetDescriptor().m_vConstantRootMotion * tDiff.AsFloatInSeconds() * m_fCurWeight);
 
-  ozz::animation::BlendingJob::Layer layer;
-  layer.weight = m_fCurWeight;
-  layer.transform = make_span(m_pLocalTransforms->m_ozzLocalTransforms);
-
-  if (const ezAnimGraphBlendWeights* pWeights = m_Weights.GetWeights(*pOwner))
+  if (true)
   {
-    layer.weight *= pWeights->m_fOverallWeight;
-    layer.joint_weights = make_span(pWeights->m_ozzBlendWeights);
+    ozz::animation::BlendingJob::Layer layer;
+    layer.weight = m_fCurWeight;
+    layer.transform = make_span(m_pLocalTransforms->m_ozzLocalTransforms);
+
+    if (const ezAnimGraphBlendWeights* pWeights = m_Weights.GetWeights(*pOwner))
+    {
+      layer.weight *= pWeights->m_fOverallWeight;
+      layer.joint_weights = make_span(pWeights->m_ozzBlendWeights);
+    }
+
+    pOwner->AddFrameBlendLayer(layer);
   }
 
-  pOwner->AddFrameBlendLayer(layer);
+  {
+    m_pLocalTransforms->m_fOverallWeight = m_fCurWeight;
+    m_LocalPose.SetPose(*pOwner, m_pLocalTransforms);
+  }
 }
 
 void ezPlayClipAnimNode::SetAnimationClip(const char* szFile)

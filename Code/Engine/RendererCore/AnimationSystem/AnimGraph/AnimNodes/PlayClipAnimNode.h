@@ -42,6 +42,7 @@ private:
   ezAnimGraphTriggerInputPin m_Active;          // [ property ]
   ezAnimGraphNumberInputPin m_SpeedPin;         // [ property ]
   ezAnimGraphSkeletonWeightsInputPin m_Weights; // [ property ]
+  ezAnimGraphLocalPoseOutputPin m_LocalPose;    // [ property ]
 
   ezTime m_PlaybackTime;
   float m_fCurWeight = 0.0f;

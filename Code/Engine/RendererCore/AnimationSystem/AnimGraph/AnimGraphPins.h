@@ -7,6 +7,8 @@ class ezAnimGraph;
 class ezStreamWriter;
 class ezStreamReader;
 struct ezAnimGraphBlendWeights;
+struct ezAnimGraphLocalTransforms;
+struct ezAnimGraphModelSpaceTransforms;
 
 
 
@@ -20,6 +22,8 @@ class EZ_RENDERERCORE_DLL ezAnimGraphPin : public ezReflectedClass
     Trigger,
     Number,
     SkeletonWeights,
+    LocalPose,
+    FinalPose,
     // EXTEND THIS if a new type is introduced
 
     ENUM_COUNT
@@ -106,4 +110,40 @@ class EZ_RENDERERCORE_DLL ezAnimGraphSkeletonWeightsOutputPin : public ezAnimGra
 
 public:
   void SetWeights(ezAnimGraph& controller, ezAnimGraphBlendWeights* pWeights);
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_RENDERERCORE_DLL ezAnimGraphLocalPoseInputPin : public ezAnimGraphInputPin
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphLocalPoseInputPin, ezAnimGraphInputPin);
+
+public:
+  ezAnimGraphLocalTransforms* GetPose(ezAnimGraph& controller) const;
+};
+
+class EZ_RENDERERCORE_DLL ezAnimGraphLocalPoseOutputPin : public ezAnimGraphOutputPin
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphLocalPoseOutputPin, ezAnimGraphOutputPin);
+
+public:
+  void SetPose(ezAnimGraph& controller, ezAnimGraphLocalTransforms* pPose);
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_RENDERERCORE_DLL ezAnimGraphFinalPoseInputPin : public ezAnimGraphInputPin
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphFinalPoseInputPin, ezAnimGraphInputPin);
+
+public:
+  ezAnimGraphModelSpaceTransforms* GetPose(ezAnimGraph& controller) const;
+};
+
+class EZ_RENDERERCORE_DLL ezAnimGraphFinalPoseOutputPin : public ezAnimGraphOutputPin
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphFinalPoseOutputPin, ezAnimGraphOutputPin);
+
+public:
+  void SetPose(ezAnimGraph& controller, ezAnimGraphModelSpaceTransforms* pPose);
 };

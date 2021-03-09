@@ -27,12 +27,18 @@ struct ezAnimGraphBlendWeights
 
 struct ezAnimGraphLocalTransforms
 {
+  float m_fOverallWeight = 1.0f;
   ozz::vector<ozz::math::SoaTransform> m_ozzLocalTransforms;
 };
 
 struct ezAnimGraphSamplingCache
 {
   ozz::animation::SamplingCache m_ozzSamplingCache;
+};
+
+struct ezAnimGraphModelSpaceTransforms
+{
+  ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper> m_modelSpaceTransforms;
 };
 
 class EZ_RENDERERCORE_DLL ezAnimGraph
@@ -66,6 +72,8 @@ public:
   ezDynamicArray<ezInt8> m_TriggerInputPinStates;
   ezDynamicArray<double> m_NumberInputPinStates;
   ezDynamicArray<ezAnimGraphBlendWeights*> m_SkeletonWeightInputPinStates;
+  ezDynamicArray<ezAnimGraphLocalTransforms*> m_LocalPoseInputPinStates;
+  ezDynamicArray<ezAnimGraphModelSpaceTransforms*> m_FinalPoseInputPinStates;
 
   /// \brief To be called by ezAnimGraphNode classes every frame that they want to affect animation
   void AddFrameBlendLayer(const ozz::animation::BlendingJob::Layer& layer);
@@ -79,6 +87,9 @@ public:
   ezAnimGraphLocalTransforms* AllocateLocalTransforms(const ezSkeletonResource& skeleton);
   void FreeLocalTransforms(ezAnimGraphLocalTransforms*& pTransforms);
 
+  ezAnimGraphModelSpaceTransforms* AllocateModelSpaceTransforms(const ezSkeletonResource& skeleton);
+  void FreeModelSpaceTransforms(ezAnimGraphModelSpaceTransforms*& pTransforms);
+
   ezAnimGraphSamplingCache* AllocateSamplingCache(const ozz::animation::Animation& animclip);
   void FreeSamplingCache(ezAnimGraphSamplingCache*& pTransforms);
 
@@ -88,13 +99,16 @@ private:
 
   ezDynamicArray<ozz::animation::BlendingJob::Layer> m_ozzBlendLayers;
   ozz::vector<ozz::math::SoaTransform> m_ozzLocalTransforms;
-  ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper> m_ModelSpaceTransforms;
+  ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper> m_ModelSpaceTransform;
 
   ezDeque<ezAnimGraphBlendWeights> m_BlendWeights;
   ezHybridArray<ezAnimGraphBlendWeights*, 8> m_BlendWeightsFreeList;
 
   ezDeque<ezAnimGraphLocalTransforms> m_LocalTransforms;
   ezHybridArray<ezAnimGraphLocalTransforms*, 8> m_LocalTransformsFreeList;
+
+  ezDeque<ezAnimGraphModelSpaceTransforms> m_ModelSpaceTransforms;
+  ezHybridArray<ezAnimGraphModelSpaceTransforms*, 8> m_ModelSpaceTransformsFreeList;
 
   ezDeque<ezAnimGraphSamplingCache> m_SamplingCaches;
   ezHybridArray<ezAnimGraphSamplingCache*, 8> m_SamplingCachesFreeList;

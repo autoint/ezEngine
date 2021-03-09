@@ -135,3 +135,67 @@ void ezAnimGraphSkeletonWeightsOutputPin::SetWeights(ezAnimGraph& controller, ez
     controller.m_SkeletonWeightInputPinStates[idx] = pWeights;
   }
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphLocalPoseInputPin, 1, ezRTTIDefaultAllocator<ezAnimGraphLocalPoseInputPin>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphLocalPoseOutputPin, 1, ezRTTIDefaultAllocator<ezAnimGraphLocalPoseOutputPin>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezAnimGraphLocalTransforms* ezAnimGraphLocalPoseInputPin::GetPose(ezAnimGraph& controller) const
+{
+  if (m_iPinIndex < 0)
+    return nullptr;
+
+  return controller.m_LocalPoseInputPinStates[m_iPinIndex];
+}
+
+void ezAnimGraphLocalPoseOutputPin::SetPose(ezAnimGraph& controller, ezAnimGraphLocalTransforms* pPose)
+{
+  if (m_iPinIndex < 0)
+    return;
+
+  const auto& map = controller.m_OutputPinToInputPinMapping[ezAnimGraphPin::LocalPose][m_iPinIndex];
+
+  // set all input pins that are connected to this output pin
+  for (ezUInt16 idx : map)
+  {
+    controller.m_LocalPoseInputPinStates[idx] = pPose;
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphFinalPoseInputPin, 1, ezRTTIDefaultAllocator<ezAnimGraphFinalPoseInputPin>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphFinalPoseOutputPin, 1, ezRTTIDefaultAllocator<ezAnimGraphFinalPoseOutputPin>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezAnimGraphModelSpaceTransforms* ezAnimGraphFinalPoseInputPin::GetPose(ezAnimGraph& controller) const
+{
+  if (m_iPinIndex < 0)
+    return nullptr;
+
+  return controller.m_FinalPoseInputPinStates[m_iPinIndex];
+}
+
+void ezAnimGraphFinalPoseOutputPin::SetPose(ezAnimGraph& controller, ezAnimGraphModelSpaceTransforms* pPose)
+{
+  if (m_iPinIndex < 0)
+    return;
+
+  const auto& map = controller.m_OutputPinToInputPinMapping[ezAnimGraphPin::LocalPose][m_iPinIndex];
+
+  // set all input pins that are connected to this output pin
+  for (ezUInt16 idx : map)
+  {
+    controller.m_FinalPoseInputPinStates[idx] = pPose;
+  }
+}
