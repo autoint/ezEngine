@@ -40,6 +40,9 @@ void ezAnimationControllerNodeManager::InternalCreatePins(const ezDocumentObject
   const ezColor triggerPinColor = ezColor::DarkOrange;
   const ezColor numberPinColor = ezColor::ForestGreen;
   const ezColor weightPinColor = ezColor::LightSkyBlue;
+  const ezColor localPosePinColor = ezColor::CadetBlue;
+  const ezColor finalPosePinColor = ezColor::DarkRed;
+  // EXTEND THIS if a new type is introduced
 
   for (ezAbstractProperty* pProp : properties)
   {
@@ -84,25 +87,25 @@ void ezAnimationControllerNodeManager::InternalCreatePins(const ezDocumentObject
     }
     else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphLocalPoseInputPin>())
     {
-      ezAnimationControllerNodePin* pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Input, pProp->GetPropertyName(), weightPinColor, pObject);
+      ezAnimationControllerNodePin* pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Input, pProp->GetPropertyName(), localPosePinColor, pObject);
       pPin->m_DataType = ezAnimGraphPin::LocalPose;
       node.m_Inputs.PushBack(pPin);
     }
     else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphLocalPoseOutputPin>())
     {
-      ezAnimationControllerNodePin* pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Output, pProp->GetPropertyName(), weightPinColor, pObject);
+      ezAnimationControllerNodePin* pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Output, pProp->GetPropertyName(), localPosePinColor, pObject);
       pPin->m_DataType = ezAnimGraphPin::LocalPose;
       node.m_Outputs.PushBack(pPin);
     }
     else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphFinalPoseInputPin>())
     {
-      ezAnimationControllerNodePin* pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Input, pProp->GetPropertyName(), weightPinColor, pObject);
+      ezAnimationControllerNodePin* pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Input, pProp->GetPropertyName(), finalPosePinColor, pObject);
       pPin->m_DataType = ezAnimGraphPin::FinalPose;
       node.m_Inputs.PushBack(pPin);
     }
     else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphFinalPoseOutputPin>())
     {
-      ezAnimationControllerNodePin* pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Output, pProp->GetPropertyName(), weightPinColor, pObject);
+      ezAnimationControllerNodePin* pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Output, pProp->GetPropertyName(), finalPosePinColor, pObject);
       pPin->m_DataType = ezAnimGraphPin::FinalPose;
       node.m_Outputs.PushBack(pPin);
     }
@@ -164,19 +167,19 @@ ezStatus ezAnimationControllerNodeManager::InternalCanConnect(const ezPin* pSour
       break;
 
     case ezAnimGraphPin::Number:
-      out_Result = CanConnectResult::Connect1toN;
+      out_Result = CanConnectResult::ConnectNto1;
       break;
 
     case ezAnimGraphPin::SkeletonWeights:
-      out_Result = CanConnectResult::Connect1toN;
+      out_Result = CanConnectResult::ConnectNto1;
       break;
 
     case ezAnimGraphPin::LocalPose:
-      out_Result = CanConnectResult::Connect1toN;
+      out_Result = CanConnectResult::ConnectNto1;
       break;
 
     case ezAnimGraphPin::FinalPose:
-      out_Result = CanConnectResult::Connect1toN;
+      out_Result = CanConnectResult::ConnectNto1;
       break;
 
       // EXTEND THIS if a new type is introduced

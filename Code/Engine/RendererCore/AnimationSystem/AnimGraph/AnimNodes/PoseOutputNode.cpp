@@ -50,7 +50,5 @@ void ezPoseOutputAnimNode::Step(ezAnimGraph* pOwner, ezTime tDiff, const ezSkele
   if (!m_FinalPose.IsConnected())
     return;
 
-  //const auto pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
-
-  //m_Weights.SetWeights(*pOwner, m_pPartialBlendingMask);
+  pOwner->m_pCurrentModelSpaceTransforms = m_FinalPose.GetPose(*pOwner);
 }

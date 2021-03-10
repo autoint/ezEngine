@@ -15,7 +15,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezToModelSpaceAnimNode, 1, ezRTTIDefaultAllocato
     EZ_BEGIN_PROPERTIES
     {
       EZ_MEMBER_PROPERTY("LocalPose", m_LocalPose)->AddAttributes(new ezHiddenAttribute),
-      //EZ_MEMBER_PROPERTY("FinalPose", m_FinalPose)->AddAttributes(new ezHiddenAttribute),
+      EZ_MEMBER_PROPERTY("FinalPose", m_FinalPose)->AddAttributes(new ezHiddenAttribute),
     }
     EZ_END_PROPERTIES;
   }
@@ -52,10 +52,8 @@ ezResult ezToModelSpaceAnimNode::DeserializeNode(ezStreamReader& stream)
 
 void ezToModelSpaceAnimNode::Step(ezAnimGraph* pOwner, ezTime tDiff, const ezSkeletonResource* pSkeleton)
 {
-  if (!m_LocalPose.IsConnected())
+  if (!m_LocalPose.IsConnected() || !m_FinalPose.IsConnected())
     return;
-  //if (!m_FinalPose.IsConnected())
-  //  return;
 
   if (m_pModelSpaceTransform == nullptr)
   {
@@ -76,5 +74,5 @@ void ezToModelSpaceAnimNode::Step(ezAnimGraph* pOwner, ezTime tDiff, const ezSke
   EZ_ASSERT_DEBUG(job.Validate(), "");
   job.Run();
 
-  pOwner->m_pCurrentModelSpaceTransforms = m_pModelSpaceTransform;
+  m_FinalPose.SetPose(*pOwner, m_pModelSpaceTransform);
 }

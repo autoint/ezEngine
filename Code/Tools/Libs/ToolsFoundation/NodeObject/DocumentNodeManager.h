@@ -105,11 +105,11 @@ public:
 
   enum class CanConnectResult
   {
-    ConnectNever,
-    Connect1to1,
-    Connect1toN,
-    ConnectNto1,
-    ConnectNtoN,
+    ConnectNever, ///< Pins can't be connected
+    Connect1to1,  ///< Output pin can have 1 outgoing connection, Input pin can have 1 incoming connection
+    Connect1toN,  ///< Output pin can have 1 outgoing connection, Input pin can have N incoming connections
+    ConnectNto1,  ///< Output pin can have N outgoing connections, Input pin can have 1 incoming connection
+    ConnectNtoN,  ///< Output pin can have N outgoing connections, Input pin can have N incoming connections
   };
 
   bool IsNode(const ezDocumentObject* pObject) const;
