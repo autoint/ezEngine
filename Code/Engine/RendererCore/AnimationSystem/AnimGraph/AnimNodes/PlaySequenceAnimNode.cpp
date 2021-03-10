@@ -203,11 +203,13 @@ void ezPlaySequenceAnimNode::Step(ezAnimGraph* pOwner, ezTime tDiff, const ezSke
 
   pOwner->AddFrameRootMotion(animDesc.m_vConstantRootMotion * tDiff.AsFloatInSeconds());
 
-  ozz::animation::BlendingJob::Layer layer;
-  layer.weight = 1.0f;
-  layer.transform = make_span(m_pLocalTransforms->m_ozzLocalTransforms);
+  // TODO: output
 
-  pOwner->AddFrameBlendLayer(layer);
+  //ozz::animation::BlendingJob::Layer layer;
+  //layer.weight = 1.0f;
+  //layer.transform = make_span(m_pLocalTransforms->m_ozzLocalTransforms);
+
+  //pOwner->AddFrameBlendLayer(layer);
 }
 
 void ezPlaySequenceAnimNode::SetStartClip(const char* szFile)

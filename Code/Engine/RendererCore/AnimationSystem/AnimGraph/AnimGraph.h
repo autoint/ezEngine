@@ -28,6 +28,7 @@ struct ezAnimGraphBlendWeights
 struct ezAnimGraphLocalTransforms
 {
   float m_fOverallWeight = 1.0f;
+  const ezAnimGraphBlendWeights* m_pWeights = nullptr;
   ozz::vector<ozz::math::SoaTransform> m_ozzLocalTransforms;
 };
 
@@ -75,9 +76,6 @@ public:
   ezDynamicArray<ezAnimGraphLocalTransforms*> m_LocalPoseInputPinStates;
   ezDynamicArray<ezAnimGraphModelSpaceTransforms*> m_FinalPoseInputPinStates;
 
-  /// \brief To be called by ezAnimGraphNode classes every frame that they want to affect animation
-  void AddFrameBlendLayer(const ozz::animation::BlendingJob::Layer& layer);
-
   /// \brief To be called by ezAnimGraphNode classes every frame that they want to affect the root motion
   void AddFrameRootMotion(const ezVec3& motion);
 
@@ -99,10 +97,6 @@ private:
   ezBlackboard* m_pBlackboard = nullptr;
   ezBlackboard m_Blackboard;
 
-  ezDynamicArray<ozz::animation::BlendingJob::Layer> m_ozzBlendLayers;
-  ozz::vector<ozz::math::SoaTransform> m_ozzLocalTransforms;
-  //ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper> m_ModelSpaceTransform;
-
   ezDeque<ezAnimGraphBlendWeights> m_BlendWeights;
   ezHybridArray<ezAnimGraphBlendWeights*, 8> m_BlendWeightsFreeList;
 
@@ -115,7 +109,5 @@ private:
   ezDeque<ezAnimGraphSamplingCache> m_SamplingCaches;
   ezHybridArray<ezAnimGraphSamplingCache*, 8> m_SamplingCachesFreeList;
 
-  bool m_bFinalized = false;
   ezVec3 m_vRootMotion = ezVec3::ZeroVector();
-  void Finalize(const ezSkeletonResource* pSkeleton);
 };

@@ -24,10 +24,6 @@ void ezAnimGraph::Update(ezTime tDiff)
   if (pSkeleton.GetAcquireResult() != ezResourceAcquireResult::Final)
     return;
 
-  auto pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
-
-  m_ozzBlendLayers.Clear();
-
   m_pCurrentModelSpaceTransforms = nullptr;
   m_vRootMotion.SetZero();
 
@@ -35,42 +31,8 @@ void ezAnimGraph::Update(ezTime tDiff)
   {
     pNode->Step(this, tDiff, pSkeleton.GetPointer());
   }
-
-  //{
-  //  m_ozzLocalTransforms.resize(pOzzSkeleton->num_soa_joints());
-
-  //  ozz::animation::BlendingJob job;
-  //  job.threshold = 0.1f;
-  //  job.layers = ozz::span<const ozz::animation::BlendingJob::Layer>(begin(m_ozzBlendLayers), end(m_ozzBlendLayers));
-  //  job.bind_pose = pOzzSkeleton->joint_bind_poses();
-  //  job.output = make_span(m_ozzLocalTransforms);
-  //  EZ_ASSERT_DEBUG(job.Validate(), "");
-  //  job.Run();
-  //}
-
-  m_bFinalized = false;
 }
 
-void ezAnimGraph::Finalize(const ezSkeletonResource* pSkeleton)
-{
-  if (m_bFinalized)
-    return;
-
-  m_bFinalized = true;
-
-  //const ozz::animation::Skeleton* pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
-
-  //{
-  //  m_ModelSpaceTransform.SetCountUninitialized(pOzzSkeleton->num_joints());
-
-  //  ozz::animation::LocalToModelJob job;
-  //  job.input = make_span(m_ozzLocalTransforms);
-  //  job.output = ozz::span<ozz::math::Float4x4>(reinterpret_cast<ozz::math::Float4x4*>(begin(m_ModelSpaceTransform)), reinterpret_cast<ozz::math::Float4x4*>(end(m_ModelSpaceTransform)));
-  //  job.skeleton = pOzzSkeleton;
-  //  EZ_ASSERT_DEBUG(job.Validate(), "");
-  //  job.Run();
-  //}
-}
 
 void ezAnimGraph::SendResultTo(ezGameObject* pObject)
 {
@@ -84,12 +46,9 @@ void ezAnimGraph::SendResultTo(ezGameObject* pObject)
   if (pSkeleton.GetAcquireResult() != ezResourceAcquireResult::Final)
     return;
 
-  Finalize(pSkeleton.GetPointer());
-
   ezMsgAnimationPoseUpdated msg;
   msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
   msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
-  //msg.m_ModelTransforms = m_ModelSpaceTransform;
   msg.m_ModelTransforms = m_pCurrentModelSpaceTransforms->m_modelSpaceTransforms;
 
   pObject->SendMessageRecursive(msg);
@@ -272,11 +231,6 @@ ezResult ezAnimGraph::Deserialize(ezStreamReader& stream)
   // EXTEND THIS if a new type is introduced
 
   return EZ_SUCCESS;
-}
-
-void ezAnimGraph::AddFrameBlendLayer(const ozz::animation::BlendingJob::Layer& layer)
-{
-  m_ozzBlendLayers.PushBack(layer);
 }
 
 void ezAnimGraph::AddFrameRootMotion(const ezVec3& motion)

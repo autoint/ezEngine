@@ -166,23 +166,25 @@ void ezPlayClipAnimNode::Step(ezAnimGraph* pOwner, ezTime tDiff, const ezSkeleto
 
   pOwner->AddFrameRootMotion(pAnimClip->GetDescriptor().m_vConstantRootMotion * tDiff.AsFloatInSeconds() * m_fCurWeight);
 
-  if (true)
-  {
-    ozz::animation::BlendingJob::Layer layer;
-    layer.weight = m_fCurWeight;
-    layer.transform = make_span(m_pLocalTransforms->m_ozzLocalTransforms);
+  //if (true)
+  //{
+  //  ozz::animation::BlendingJob::Layer layer;
+  //  layer.weight = m_fCurWeight;
+  //  layer.transform = make_span(m_pLocalTransforms->m_ozzLocalTransforms);
 
-    if (const ezAnimGraphBlendWeights* pWeights = m_Weights.GetWeights(*pOwner))
-    {
-      layer.weight *= pWeights->m_fOverallWeight;
-      layer.joint_weights = make_span(pWeights->m_ozzBlendWeights);
-    }
+  //  if (const ezAnimGraphBlendWeights* pWeights = m_Weights.GetWeights(*pOwner))
+  //  {
+  //    layer.weight *= pWeights->m_fOverallWeight;
+  //    layer.joint_weights = make_span(pWeights->m_ozzBlendWeights);
+  //  }
 
-    pOwner->AddFrameBlendLayer(layer);
-  }
+  //  pOwner->AddFrameBlendLayer(layer);
+  //}
 
   {
     m_pLocalTransforms->m_fOverallWeight = m_fCurWeight;
+    m_pLocalTransforms->m_pWeights = m_Weights.GetWeights(*pOwner);
+
     m_LocalPose.SetPose(*pOwner, m_pLocalTransforms);
   }
 }
