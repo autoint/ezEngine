@@ -5,6 +5,7 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 #include <ozz/animation/runtime/animation.h>
+#include <ozz/animation/runtime/local_to_model_job.h>
 #include <ozz/animation/runtime/skeleton.h>
 #include <ozz/animation/runtime/skeleton_utils.h>
 
@@ -14,7 +15,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezToModelSpaceAnimNode, 1, ezRTTIDefaultAllocato
     EZ_BEGIN_PROPERTIES
     {
       EZ_MEMBER_PROPERTY("LocalPose", m_LocalPose)->AddAttributes(new ezHiddenAttribute),
-      EZ_MEMBER_PROPERTY("FinalPose", m_FinalPose)->AddAttributes(new ezHiddenAttribute),
+      //EZ_MEMBER_PROPERTY("FinalPose", m_FinalPose)->AddAttributes(new ezHiddenAttribute),
     }
     EZ_END_PROPERTIES;
   }
@@ -56,7 +57,24 @@ void ezToModelSpaceAnimNode::Step(ezAnimGraph* pOwner, ezTime tDiff, const ezSke
   //if (!m_FinalPose.IsConnected())
   //  return;
 
-  //const auto pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
+  if (m_pModelSpaceTransform == nullptr)
+  {
+    m_pModelSpaceTransform = pOwner->AllocateModelSpaceTransforms(*pSkeleton);
+  }
 
-  //m_Weights.SetWeights(*pOwner, m_pPartialBlendingMask);
+  const auto pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
+
+  auto& msTrans = m_pModelSpaceTransform->m_modelSpaceTransforms;
+  msTrans.SetCountUninitialized(pOzzSkeleton->num_joints());
+
+  auto pLocalPose = m_LocalPose.GetPose(*pOwner);
+
+  ozz::animation::LocalToModelJob job;
+  job.input = make_span(pLocalPose->m_ozzLocalTransforms);
+  job.output = ozz::span<ozz::math::Float4x4>(reinterpret_cast<ozz::math::Float4x4*>(begin(msTrans)), reinterpret_cast<ozz::math::Float4x4*>(end(msTrans)));
+  job.skeleton = pOzzSkeleton;
+  EZ_ASSERT_DEBUG(job.Validate(), "");
+  job.Run();
+
+  pOwner->m_pCurrentModelSpaceTransforms = m_pModelSpaceTransform;
 }

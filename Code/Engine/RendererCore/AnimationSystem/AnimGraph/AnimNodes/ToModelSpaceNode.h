@@ -30,4 +30,6 @@ public:
 private:
   ezAnimGraphLocalPoseInputPin m_LocalPose;  // [ property ]
   ezAnimGraphFinalPoseOutputPin m_FinalPose; // [ property ]
+
+  ezAnimGraphModelSpaceTransforms* m_pModelSpaceTransform = nullptr;
 };

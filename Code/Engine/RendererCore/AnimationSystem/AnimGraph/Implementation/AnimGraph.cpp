@@ -28,6 +28,7 @@ void ezAnimGraph::Update(ezTime tDiff)
 
   m_ozzBlendLayers.Clear();
 
+  m_pCurrentModelSpaceTransforms = nullptr;
   m_vRootMotion.SetZero();
 
   for (const auto& pNode : m_Nodes)
@@ -35,17 +36,17 @@ void ezAnimGraph::Update(ezTime tDiff)
     pNode->Step(this, tDiff, pSkeleton.GetPointer());
   }
 
-  {
-    m_ozzLocalTransforms.resize(pOzzSkeleton->num_soa_joints());
+  //{
+  //  m_ozzLocalTransforms.resize(pOzzSkeleton->num_soa_joints());
 
-    ozz::animation::BlendingJob job;
-    job.threshold = 0.1f;
-    job.layers = ozz::span<const ozz::animation::BlendingJob::Layer>(begin(m_ozzBlendLayers), end(m_ozzBlendLayers));
-    job.bind_pose = pOzzSkeleton->joint_bind_poses();
-    job.output = make_span(m_ozzLocalTransforms);
-    EZ_ASSERT_DEBUG(job.Validate(), "");
-    job.Run();
-  }
+  //  ozz::animation::BlendingJob job;
+  //  job.threshold = 0.1f;
+  //  job.layers = ozz::span<const ozz::animation::BlendingJob::Layer>(begin(m_ozzBlendLayers), end(m_ozzBlendLayers));
+  //  job.bind_pose = pOzzSkeleton->joint_bind_poses();
+  //  job.output = make_span(m_ozzLocalTransforms);
+  //  EZ_ASSERT_DEBUG(job.Validate(), "");
+  //  job.Run();
+  //}
 
   m_bFinalized = false;
 }
@@ -57,22 +58,25 @@ void ezAnimGraph::Finalize(const ezSkeletonResource* pSkeleton)
 
   m_bFinalized = true;
 
-  const ozz::animation::Skeleton* pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
+  //const ozz::animation::Skeleton* pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
 
-  {
-    m_ModelSpaceTransform.SetCountUninitialized(pOzzSkeleton->num_joints());
+  //{
+  //  m_ModelSpaceTransform.SetCountUninitialized(pOzzSkeleton->num_joints());
 
-    ozz::animation::LocalToModelJob job;
-    job.input = make_span(m_ozzLocalTransforms);
-    job.output = ozz::span<ozz::math::Float4x4>(reinterpret_cast<ozz::math::Float4x4*>(begin(m_ModelSpaceTransform)), reinterpret_cast<ozz::math::Float4x4*>(end(m_ModelSpaceTransform)));
-    job.skeleton = pOzzSkeleton;
-    EZ_ASSERT_DEBUG(job.Validate(), "");
-    job.Run();
-  }
+  //  ozz::animation::LocalToModelJob job;
+  //  job.input = make_span(m_ozzLocalTransforms);
+  //  job.output = ozz::span<ozz::math::Float4x4>(reinterpret_cast<ozz::math::Float4x4*>(begin(m_ModelSpaceTransform)), reinterpret_cast<ozz::math::Float4x4*>(end(m_ModelSpaceTransform)));
+  //  job.skeleton = pOzzSkeleton;
+  //  EZ_ASSERT_DEBUG(job.Validate(), "");
+  //  job.Run();
+  //}
 }
 
 void ezAnimGraph::SendResultTo(ezGameObject* pObject)
 {
+  if (m_pCurrentModelSpaceTransforms == nullptr) // nothing generated
+    return;
+
   if (!m_hSkeleton.IsValid())
     return;
 
@@ -85,7 +89,8 @@ void ezAnimGraph::SendResultTo(ezGameObject* pObject)
   ezMsgAnimationPoseUpdated msg;
   msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
   msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
-  msg.m_ModelTransforms = m_ModelSpaceTransform;
+  //msg.m_ModelTransforms = m_ModelSpaceTransform;
+  msg.m_ModelTransforms = m_pCurrentModelSpaceTransforms->m_modelSpaceTransforms;
 
   pObject->SendMessageRecursive(msg);
 }

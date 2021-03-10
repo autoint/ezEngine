@@ -100,7 +100,7 @@ void ezAnimationControllerNodeManager::InternalCreatePins(const ezDocumentObject
       pPin->m_DataType = ezAnimGraphPin::FinalPose;
       node.m_Inputs.PushBack(pPin);
     }
-    else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphLocalPoseOutputPin>())
+    else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphFinalPoseOutputPin>())
     {
       ezAnimationControllerNodePin* pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Output, pProp->GetPropertyName(), weightPinColor, pObject);
       pPin->m_DataType = ezAnimGraphPin::FinalPose;
@@ -320,9 +320,11 @@ void ezAnimationControllerAssetDocument::SetOutputPinIndices(const ezDynamicArra
       for (const auto pCon : pCtrlPin->GetConnections())
       {
         const ezUInt16 uiTargetIdx = inputPinIndices.GetValueOrDefault(pCon->GetTargetPin(), 0xFFFF);
-        EZ_ASSERT_DEBUG(uiTargetIdx != 0xFFFF, "invalid target pin");
 
-        animController.m_OutputPinToInputPinMapping[pinType][idx].PushBack(uiTargetIdx);
+        if (uiTargetIdx != 0xFFFF)
+        {
+          animController.m_OutputPinToInputPinMapping[pinType][idx].PushBack(uiTargetIdx);
+        }
       }
     }
   }

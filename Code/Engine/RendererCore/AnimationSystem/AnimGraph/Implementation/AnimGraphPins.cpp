@@ -191,7 +191,7 @@ void ezAnimGraphFinalPoseOutputPin::SetPose(ezAnimGraph& controller, ezAnimGraph
   if (m_iPinIndex < 0)
     return;
 
-  const auto& map = controller.m_OutputPinToInputPinMapping[ezAnimGraphPin::LocalPose][m_iPinIndex];
+  const auto& map = controller.m_OutputPinToInputPinMapping[ezAnimGraphPin::FinalPose][m_iPinIndex];
 
   // set all input pins that are connected to this output pin
   for (ezUInt16 idx : map)

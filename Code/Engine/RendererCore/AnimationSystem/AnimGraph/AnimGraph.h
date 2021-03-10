@@ -93,13 +93,15 @@ public:
   ezAnimGraphSamplingCache* AllocateSamplingCache(const ozz::animation::Animation& animclip);
   void FreeSamplingCache(ezAnimGraphSamplingCache*& pTransforms);
 
+  ezAnimGraphModelSpaceTransforms* m_pCurrentModelSpaceTransforms = nullptr;
+
 private:
   ezBlackboard* m_pBlackboard = nullptr;
   ezBlackboard m_Blackboard;
 
   ezDynamicArray<ozz::animation::BlendingJob::Layer> m_ozzBlendLayers;
   ozz::vector<ozz::math::SoaTransform> m_ozzLocalTransforms;
-  ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper> m_ModelSpaceTransform;
+  //ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper> m_ModelSpaceTransform;
 
   ezDeque<ezAnimGraphBlendWeights> m_BlendWeights;
   ezHybridArray<ezAnimGraphBlendWeights*, 8> m_BlendWeightsFreeList;
